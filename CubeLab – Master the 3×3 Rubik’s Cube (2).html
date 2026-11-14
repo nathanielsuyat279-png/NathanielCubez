@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en" data-theme="dark"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CubeLab – Master the 3×3 Rubik’s Cube</title>
+<style>
+:root{--bg:#0d0e12;--c:#171a22;--c2:#212634;--t:#eceef5;--m:#98a0b5;--a:#fd0;--bd:#2a2f3c;--g:linear-gradient(90deg,#f80,#fd0,#2c5,#27f,#e33);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme=light]{--bg:#f2f3f8;--c:#fff;--c2:#eef0f6;--t:#171a22;--m:#586078;--a:#b25e00;--bd:#d9dde8;color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0}
+body{font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--t)}
+:root[data-theme=dark] body{background:radial-gradient(circle at 15% 0,#1d2233,var(--bg) 55%) fixed}
+aside{position:fixed;top:0;bottom:0;left:0;width:216px;background:var(--c);border-right:1px solid var(--bd);padding:calc(16px + env(safe-area-inset-top,0px)) 12px 16px;z-index:20;transition:transform .3s;overflow:auto}
+.logo{font-weight:800;font-size:20px;margin:0 0 14px 8px;background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent}
+nav button{display:block;width:100%;text-align:left;padding:10px 12px;margin:2px 0;border:0;border-radius:10px;background:none;color:var(--m);font:inherit;cursor:pointer;transition:.2s}
+nav button:hover,nav button.on{background:var(--c2);color:var(--t)}
+header{margin-left:216px;display:flex;gap:8px;padding:12px 20px;position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);align-items:center}
+header input{flex:1;min-width:0;padding:9px 14px;border-radius:12px;border:1px solid var(--bd);background:var(--c);color:var(--t);font:inherit}
+header button{border:1px solid var(--bd);background:var(--c);color:var(--t);border-radius:10px;padding:8px 11px;cursor:pointer}
+#mb{display:none}
+main{margin-left:216px;padding:4px 20px 60px;max-width:1100px}
+@media(max-width:820px){aside{transform:translateX(-100%)}body.open aside{transform:none}header,main{margin-left:0}#mb{display:block}main{padding:4px 14px 60px}}
+.v{display:none}.v.on{display:block;animation:in .35s}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.card{background:var(--c);border:1px solid var(--bd);border-radius:18px;padding:16px;margin:12px 0}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.grid .card{margin:0}
+main button{background:var(--c2);color:var(--t);border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font:inherit;cursor:pointer;transition:.2s}
+main button:hover{transform:translateY(-1px);border-color:var(--a)}
+main button.pri{background:var(--g);color:#111;border:0;font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+h1{font-size:clamp(28px,5vw,46px);line-height:1.1;margin:6px 0 10px}h2{margin:10px 0}h3{margin:4px 0}
+.gr{background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;align-items:center}@media(max-width:820px){.hero{grid-template-columns:1fr}}
+.bar{height:10px;border-radius:9px;background:var(--c2);overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:var(--g);transition:width .5s}
+small{color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+code{font-family:ui-monospace,Menlo,monospace;color:var(--a);background:var(--c2);padding:2px 6px;border-radius:6px}
+.stage{height:290px;perspective:900px;display:grid;place-items:center;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;overflow:hidden}
+.cube{position:relative;width:0;height:0;transform-style:preserve-3d}
+.cb{position:absolute;transform-style:preserve-3d}
+.f{position:absolute;inset:0;background:#15161b;backface-visibility:hidden;border:3px solid #15161b;border-radius:7px}
+.stage:not(.mini) .cb{will-change:transform}
+.nt{font:12px ui-monospace,monospace;color:var(--m);min-height:34px;word-break:break-word}
+.pad{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:8px 0}.pad button{padding:8px 0;text-align:center}
+.lg{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}@media(max-width:1000px){.lg{grid-template-columns:1fr}}
+.alg{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--c2);padding:8px 10px;border-radius:12px;margin:8px 0}
+.tip{border-left:3px solid #2c5;padding-left:10px;color:var(--m);margin:8px 0}.bad{border-left:3px solid #e33;padding-left:10px;color:var(--m);margin:8px 0}
+.opt{display:block;width:100%;margin:6px 0;text-align:left}main .opt.ok{border-color:#2c5;background:#14351f}main .opt.no{border-color:#e33;background:#3a1717}
+.lock{opacity:.35;filter:grayscale(1)}.big{font-size:26px;font-weight:800}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--c);border:1px solid var(--a);padding:10px 16px;border-radius:14px;opacity:0;pointer-events:none;transition:.3s;z-index:50;max-width:90vw;text-align:center}.toast.s{opacity:1;transform:translate(-50%,0)}
+dialog{background:var(--c);color:var(--t);border:1px solid var(--bd);border-radius:18px;padding:20px;max-width:420px}
+details{padding:8px 0;border-bottom:1px solid var(--bd)}summary{cursor:pointer;font-weight:600}
+.dot{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px}
+.mini.stage{height:120px;perspective:420px;background:var(--c2);border-radius:12px;margin:8px 0}
+.st{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}.st span{font:12px ui-monospace,monospace;padding:2px 6px;border-radius:6px;background:var(--c2);color:var(--m)}.st .on{background:var(--a);color:#111;font-weight:700}.st .dn{color:var(--t)}
+.sp{align-items:center}.sp button.on{border-color:var(--a);color:var(--a)}
+</style></head><body>
+<aside id="sd"><div class="logo">◼ CubeLab</div><nav id="nv" aria-label="Main"></nav></aside>
+<header><button id="mb" aria-label="Menu">☰</button><input id="q" type="search" placeholder="Search lessons &amp; algorithms…" aria-label="Search"><button id="th" aria-label="Toggle theme">🌓</button><button id="sn" aria-label="Toggle sound">🔊</button></header>
+<main>
+<section id="home" class="v on">
+ <div class="hero"><div><small>Free interactive course</small><h1>Master the <span class="gr">3×3 Rubik’s Cube</span></h1>
+ <p>Start from zero: learn the pieces, the notation, and the seven-step beginner method, then practise with a real working 3D cube, algorithm drills, timed solves and quizzes.</p>
+ <div class="row"><button class="pri" data-go="learn">Start Learning →</button><button data-a="tu">✨ Quick tutorial</button></div></div>
+ <div id="hc"></div></div>
+ <div class="card"><b>Your progress</b><div class="bar"><i id="hb"></i></div><span id="ht"></span></div>
+ <div class="grid">
+  <div class="card"><small>Beginner</small><h3>Layer-by-layer method</h3><p>10 lessons from notation to your first solve.</p><button data-go="learn">Open lessons</button></div>
+  <div class="card"><small>Intermediate</small><h3>F2L, OLL &amp; PLL</h3><p>All 57 OLL and 21 PLL cases with demo cubes.</p><div class="row"><button data-go="f2l">F2L</button><button data-go="oll">OLL</button><button data-go="pll">PLL</button></div></div>
+  <div class="card"><small>Advanced</small><h3>Speed practice</h3><p>Timed solves, move counter and personal best.</p><button data-go="practice">Practice mode</button></div></div>
+ <div class="card"><small>Daily Cube Challenge · <span id="dd"></span></small><h3>Everyone gets the same scramble today</h3><button class="pri" data-a="daily">Take the challenge</button></div>
+ <div class="card"><small>Beginner tip</small><p id="tp"></p><button data-a="tip">Another tip</button></div>
+</section>
+
+<section id="learn" class="v"><div class="lg"><div><div class="row" id="ll"></div><div class="card" id="lc"></div>
+ <div class="row"><button data-a="prev">← Previous</button><button class="pri" data-a="done">Complete &amp; Next →</button><button data-a="next">Next →</button></div></div>
+ <div class="slot"><div id="lab" class="card"><div id="stage"></div><div id="nt" class="nt"></div><div id="pad" class="pad"></div>
+ <div class="row"><button data-a="reset">↺ Reset</button><button data-a="scr">🔀 Scramble</button><button data-a="undo">↶ Undo</button></div><div class="row sp"><span>Speed:</span><button data-sp="2200">🐌 Ultra slow</button><button data-sp="650">🐢 Slow</button><button data-sp="140">⚡ Fast</button></div></div></div></div></section>
+
+<section id="sim" class="v"><h2>3D Simulator</h2><p>Drag to rotate the view. Use the pad or keyboard (R L U D F B, hold Shift for prime).</p><div class="slot"></div></section>
+
+<section id="algs" class="v"><h2 id="at">Algorithm Library</h2><small>OLL, PLL &amp; F2L algorithms from cube.academy</small><div class="row sp"><span>Speed:</span><button data-sp="2200">🐌 Ultra slow</button><button data-sp="650">🐢 Slow</button><button data-sp="140">⚡ Fast</button></div><input id="aq" type="search" placeholder="Filter by name, notation or category…" style="width:100%;padding:10px;border-radius:12px;border:1px solid var(--bd);background:var(--c);color:var(--t);font:inherit"><div id="lm"></div><div id="al" class="grid"></div></section>
+
+<section id="practice" class="v"><h2>Practice Mode</h2>
+ <div class="row"><button class="pri" data-a="newscr">🔀 New scramble</button><button data-a="retry">🔁 Retry same scramble</button></div>
+ <div class="grid"><div class="card"><small>Moves</small><div class="big" id="mv">0</div></div><div class="card"><small>Time</small><div class="big" id="tm">0.0</div></div><div class="card"><small>Personal best</small><div class="big" id="bs">–</div></div><div class="card"><small>Solves</small><div class="big" id="sv">0</div></div></div>
+ <div class="slot"></div></section>
+
+<section id="quiz" class="v"><h2>Knowledge Test</h2><div class="card" id="qz"></div></section>
+<section id="progress" class="v"><h2>Your Progress</h2><div id="pg"></div></section>
+<section id="settings" class="v"><h2>Settings</h2><div class="card">
+ <div class="row"><label><input type="checkbox" id="sTh"> Dark theme</label></div>
+ <div class="row"><label><input type="checkbox" id="sSn"> Sound effects</label></div>
+ <div class="row"><label>Turn speed <input type="range" id="sSp" min="60" max="2500" step="20"></label></div>
+ <button data-a="rp">Reset all progress</button></div></section>
+<section id="faq" class="v"><h2>FAQ</h2><div class="card">
+ <details><summary>Do I need a real cube?</summary><p>It helps, but the simulator is fully functional. Try both!</p></details>
+ <details><summary>Why does the cube start with yellow on top?</summary><p>The beginner method builds white on the bottom, so the cube is oriented that way (green front).</p></details>
+ <details><summary>How long does it take to learn?</summary><p>Most people solve unaided after a few focused hours of practice.</p></details>
+ <details><summary>Is my progress saved?</summary><p>Yes, in your browser’s local storage on this device.</p></details></div></section>
+<section id="about" class="v"><h2>About</h2><div class="card"><p>CubeLab is a self-contained learning platform built with HTML, CSS and JavaScript. The 3D cube is a real simulation: 26 pieces, each with its own position and orientation updated after every turn.</p></div></section>
+</main>
+<dialog id="tu"><p id="tut"></p><div class="row"><button data-a="tn" class="pri" style="background:var(--g);color:#111;border:0;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer">Next</button></div></dialog>
+<div id="toast" class="toast"></div>
+<script>
+"use strict";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+/* ---------- saved state ---------- */
+let P={done:[],learned:[],best:null,solves:0,moves:0,quiz:0,dark:true,mute:false,ms:260};
+try{Object.assign(P,JSON.parse(localStorage.getItem('rc')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('rc',JSON.stringify(P))}catch(e){}};
+/* ---------- cube maths (CSS coords: x right, y down, z toward viewer) ---------- */
+const COL={U:'#fd0',D:'#fff',F:'#2c5',B:'#27f',R:'#f80',L:'#e33'};
+const NRM={U:[0,-1,0],D:[0,1,0],F:[0,0,1],B:[0,0,-1],R:[1,0,0],L:[-1,0,0]};
+const FT={F:'',B:'rotateY(180deg)',R:'rotateY(90deg)',L:'rotateY(-90deg)',U:'rotateX(90deg)',D:'rotateX(-90deg)'};
+const MV={R:['x',[1],1],L:['x',[-1],-1],U:['y',[-1],-1],D:['y',[1],1],F:['z',[1],1],B:['z',[-1],-1],r:['x',[0,1],1],l:['x',[-1,0],-1],u:['y',[-1,0],-1],d:['y',[0,1],1],f:['z',[0,1],1],b:['z',[-1,0],-1],M:['x',[0],-1],E:['y',[0],1],S:['z',[0],1],x:['x',[-1,0,1],1],y:['y',[-1,0,1],-1],z:['z',[-1,0,1],1]}; // axis, layers, clockwise sign (wide, slice and whole-cube moves included)
+const I3=[[1,0,0],[0,1,0],[0,0,1]];
+const mul=(a,b)=>a.map(r=>[0,1,2].map(j=>r[0]*b[0][j]+r[1]*b[1][j]+r[2]*b[2][j]));
+const mv3=(m,v)=>m.map(r=>r[0]*v[0]+r[1]*v[1]+r[2]*v[2]);
+const rot=(ax,a)=>{const c=Math.cos(a),s=Math.sin(a);return ax=='x'?[[1,0,0],[0,c,-s],[0,s,c]]:ax=='y'?[[c,0,s],[0,1,0],[-s,0,c]]:[[c,-s,0],[s,c,0],[0,0,1]]};
+const inv=m=>m[1]=="'"?m[0]:m[1]=='2'?m:m[0]+"'";
+const invAlg=a=>a.split(/\s+/).reverse().map(inv).join(' ');
+const rng=s=>()=>((s=Math.imul(s,1664525)+1013904223>>>0)/4294967296);
+let ac;function beep(){if(P.mute)return;try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.frequency.value=380+Math.random()*80;g.gain.value=.04;o.start();o.stop(ac.currentTime+.05)}catch(e){}}
+
+class Cube{
+ constructor(el,S){this.S=S;this.rx=-28;this.ry=-38;this.q=Promise.resolve();this.hist=[];this.cs=[];
+  this.root=document.createElement('div');this.root.className='cube';el.classList.add('stage');el.append(this.root);
+  for(let x=-1;x<2;x++)for(let y=-1;y<2;y++)for(let z=-1;z<2;z++){if(!x&&!y&&!z)continue;
+   const e=document.createElement('div'),c={o:[x,y,z],st:{},e};e.className='cb';e.style.cssText=`width:${S}px;height:${S}px;left:${-S/2}px;top:${-S/2}px`;
+   for(const f in NRM){const d=document.createElement('div'),n=NRM[f];d.className='f';
+    if(n[0]*x+n[1]*y+n[2]*z==1){d.style.background=COL[f];c.st[f]=COL[f]} // outward-facing sticker
+    d.style.transform=`${FT[f]} translateZ(${S/2}px)`;e.append(d)}
+   this.root.append(e);this.cs.push(c)}
+  this.reset();this.view();
+  let px,py,dn=0;el.addEventListener('pointerdown',e=>{dn=1;px=e.clientX;py=e.clientY;el.setPointerCapture&&el.setPointerCapture(e.pointerId)});
+  el.addEventListener('pointerup',()=>dn=0);el.addEventListener('pointercancel',()=>dn=0);
+  el.addEventListener('pointermove',e=>{if(!dn)return;this.ry+=(e.clientX-px)*.6;this.rx-=(e.clientY-py)*.6;px=e.clientX;py=e.clientY;this.view()})}
+ view(){this.root.style.transform=`rotateX(${this.rx}deg) rotateY(${this.ry}deg)`}
+ reset(){this.q=Promise.resolve();this.hist=[];this.task=null;this.cs.forEach(c=>{c.m=I3;c.p=[...c.o];this.put(c)})}
+ put(c,m=c.m,p=c.p){const S=this.S;c.e.style.transform=`matrix3d(${m[0][0]},${m[1][0]},${m[2][0]},0,${m[0][1]},${m[1][1]},${m[2][1]},0,${m[0][2]},${m[1][2]},${m[2][2]},0,${p[0]*S},${p[1]*S},${p[2]*S},1)`}
+ turn(mv,o={}){return this.q=this.q.then(()=>this._t(mv,o))}
+ play(str,o){str.trim().split(/\s+/).forEach(m=>this.turn(m,o));return this.q}
+ _t(mv,{rec=true,ms=P.ms}){return new Promise(res=>{
+  const [ax,lay,sg]=MV[mv[0]],k=mv[1]=="'"?-1:mv[1]=='2'?2:1,i='xyz'.indexOf(ax),tot=sg*k*Math.PI/2,
+   ls=this.cs.filter(c=>lay.includes(c.p[i])),t0=performance.now();
+  if(ms&&this.S>30)beep();
+  const fin=()=>{const R=rot(ax,tot);ls.forEach(c=>{c.m=mul(R,c.m).map(r=>r.map(Math.round));c.p=mv3(R,c.p).map(Math.round);this.put(c)});
+   if(rec){this.hist.push(mv);this.onmove&&this.onmove(mv)}res()};
+  const step=t=>{const f=ms?Math.max(0,Math.min(1,(t-t0)/(ms*(k==2?1.4:1)))):1;if(f>=1)return fin();
+   const R=rot(ax,tot*(1-Math.pow(1-f,2)));ls.forEach(c=>this.put(c,mul(R,c.m),mv3(R,c.p)));requestAnimationFrame(step)};
+  ms?requestAnimationFrame(step):fin()})}
+ undo(){const m=this.hist.pop();if(m)this.turn(inv(m),{rec:false})}
+ gen(n,r=Math.random){const s=[];let l='';while(s.length<n){const f='RLUDFB'[r()*6|0];if(f!=l){l=f;s.push(f+['',"'",'2'][r()*3|0])}}return s}
+ solved(){const f={};for(const c of this.cs)for(const k in c.st){const n=mv3(c.m,NRM[k]).join();(f[n]=f[n]||new Set).add(c.st[k])}return Object.values(f).every(s=>s.size==1)}
+}
+/* ---------- content ---------- */
+const LS=[
+['Chapter 1','What is a 3×3 Cube?',`<p>The 3×3 Rubik’s Cube has <b>6 faces</b> of 9 stickers each. Solved means every face is one solid colour. Yellow is opposite white, green opposite blue, red opposite orange.</p><p>You don’t memorise 43 quintillion positions: a few short <b>algorithms</b> (fixed move sequences) solve it layer by layer. Drag the cube to look around.</p>`,0,'Hold the cube with white on the bottom and yellow on top – the cube here starts that way.','Never peel stickers or pull pieces apart: only turn the layers.'],
+['Chapter 1','Pieces & Structure',`<p><b>6 centres</b> – one colour, fixed to the core. They never move relative to each other, so they decide each face’s colour.</p><p><b>12 edges</b> – two colours. <b>8 corners</b> – three colours.</p><p>Terms: <b>layer</b> (a 3×3 slice), <b>algorithm</b>, <b>scramble</b>, <b>orient</b> (twist a piece correctly), <b>permute</b> (move it to the right place).</p>`,0,'6 centres + 12 edges + 8 corners = 26 visible pieces.','Trying to move a centre – match everything to the centres instead.'],
+['Chapter 2','Cube Notation',`<p>Each letter turns one face <b>clockwise as you look at that face</b>: <code>R</code> right, <code>L</code> left, <code>U</code> up, <code>D</code> down, <code>F</code> front, <code>B</code> back.</p><p>An apostrophe (<code>R'</code>, “R prime”) is counter-clockwise. A 2 (<code>R2</code>) is a half turn.</p><p>Try all 18 moves with the pad under the cube or press the letter keys (Shift = prime).</p>`,[['Try it',"R U R' U'"]],'Made a slip? The Undo button reverses your last move.','Turning anticlockwise when you see a plain letter – plain means clockwise.'],
+['Step 1','White Cross',`<p>Build a white “+” on the <b>bottom</b>. Each white edge must also match the side centre colour. Bring a white edge to the top layer, turn U until its side colour sits above the matching centre, then turn that face twice.</p>`,[['Insert edge (F face)','F2']],'Solve the cross by sight – no algorithm needed.','Placing white edges without matching the side centres.'],
+['Step 2','White Corners',`<p>Put a white corner in the top layer directly above its slot (front-right) and repeat the trigger until it drops in with white facing down. Do this for all four corners to finish the white face and first layer.</p>`,[['Corner trigger',"R U R' U'"]],'Repeat 1–5 times until the corner is correct.','Not lining up the corner above its slot before repeating.'],
+['Step 3','Middle Layer',`<p>Find a top-layer edge with <b>no yellow</b>. Turn U so its front colour matches the front centre. If it belongs right, use the right algorithm; if left, the left one.</p>`,[['Move edge right',"U R U' R' U' F' U F"],['Move edge left',"U' L' U L U F U' F'"]],'A wrongly placed middle edge? Do the algorithm on it to pop it out first.','Using the wrong direction – check where the edge’s top colour belongs.'],
+['Step 4','Yellow Cross',`<p>Make a yellow cross on top. You will see a dot, an “L” or a line. Hold the L at back-left (or the line horizontal) and repeat the algorithm until the cross appears.</p>`,[['Yellow cross',"F R U R' U' F'"]],'Dot → L → line → cross: at most three repeats.','Holding the cube the wrong way – match the L/line position first.'],
+['Step 5','Position Yellow Edges',`<p>Turn U until at least two yellow-cross edges match their side centres. If two matched edges are adjacent, put them at back and right and run the algorithm; repeat until all four match.</p>`,[['Swap edges',"R U R' U R U2 R' U"]],'Two opposite matches? Do it once from any side, then recheck.','Forgetting to turn U before checking matches.'],
+['Step 6','Position Yellow Corners',`<p>Ignore the yellow facing. Find a corner already in its correct spot (it sits between its three centre colours). Hold it front-right and repeat the algorithm until all corners are placed.</p>`,[['Place corners',"U R U' L' U R' U' L"]],'No corner correct? Do the algorithm once from any angle.','Judging by yellow – use the other two colours.'],
+['Step 7','Orient Yellow Corners',`<p>Hold an unsolved corner at front-right. Repeat the algorithm until yellow faces up – the cube looks scrambled midway, keep going! Then turn only U to bring the next corner to front-right. Never rotate the whole cube.</p>`,[['Twist corner',"R' D' R D"]],'Trust the process: the cube is solved after the last corner.','Turning the whole cube between corners instead of just the U layer.']];
+const TIPS=['Learn notation first – every guide uses it.','Slow, accurate turns beat fast, sloppy ones.','Look at the centres: they are your colour reference.','Practise algorithms until your fingers know them.','Solve in short sessions; speed comes with sleep.'];
+const A0=[
+['Beginner','Sexy move',"R U R' U'",'White corners; building block of many algs'],
+['Beginner','Sledgehammer',"R' F R F'",'Corner insertion and trigger'],
+['Beginner','Middle layer – right',"U R U' R' U' F' U F",'Edge from top into the right slot'],
+['Beginner','Middle layer – left',"U' L' U L U F U' F'",'Edge from top into the left slot'],
+['Beginner','Yellow cross',"F R U R' U' F'",'Dot → L → line → cross'],
+['Beginner','Position yellow edges',"R U R' U R U2 R' U",'Match top edges to centres'],
+['Beginner','Position yellow corners',"U R U' L' U R' U' L",'Put corners in the right places'],
+['Beginner','Orient yellow corners',"R' D' R D",'Repeat per corner until yellow is up'],
+['2-Look OLL','Cross: L-shape',"F U R U' R' F'",'Turn an L into a line/cross'],
+['2-Look OLL','Cross: line',"F R U R' U' F'",'Line to yellow cross'],
+['2-Look OLL','Sune',"R U R' U R U2 R'",'Orient corners (one twisted)'],
+['2-Look OLL','Anti-Sune',"R U2 R' U' R U' R'",'Mirror of Sune'],
+['2-Look OLL','H (OLL 21)',"F R U R' U' R U R' U' R U R' U' F'",'Corners: two facing sides'],
+['2-Look OLL','Pi (OLL 22)',"R U2 R2 U' R2 U' R2 U2 R",'Corners: Pi case'],
+['2-Look OLL','U (OLL 23)',"R2 D R' U2 R D' R' U2 R'",'Corners: two facing front'],
+['2-Look PLL','Aa perm',"R' F R' B2 R F' R' B2 R2",'Cycle three corners'],
+['2-Look PLL','Ab perm',"R2 B2 R F R' B2 R F' R",'Inverse corner cycle'],
+['2-Look PLL','Ua perm',"R U' R U R U R U' R' U' R2",'Cycle three edges'],
+['2-Look PLL','Ub perm',"R2 U R U R' U' R' U' R' U R'",'Reverse edge cycle'],
+['2-Look PLL','H perm',"R2 U2 R U2 R2 U2 R2 U2 R U2 R2",'Swap opposite edge pairs'],
+['2-Look PLL','T perm',"R U R' U' R' F R2 U' R' U' R U R' F'",'Swap two corners + two edges'],
+['2-Look PLL','Y perm',"F R U' R' U' R U R' F' R U R' U' R' F R F'",'Swap diagonal corners'],
+['2-Look PLL','Jb perm',"R U R' F' R U R' U' R' F R2 U' R'",'Swap adjacent corners'],
+['F2L','Basic insert',"U R U' R'",'Pair corner + edge into front-right'],
+['F2L','Basic insert (left)',"U' F' U F",'Mirror: slot front-right via F'],
+['F2L','Split pair',"R U2 R' U' R U R'",'Separate then join a pair'],
+['Finger tricks','Right trigger',"R U R' U'",'Index flicks U, thumb pushes R'],
+['Finger tricks','Left trigger',"L' U' L U",'Mirror with the left hand'],
+['Finger tricks','Sledgehammer grip',"R' F R F'",'Ring finger pushes F'],
+['Finger tricks','Double flick',"U2",'Flick U twice – no regrip']];
+const A=A0.filter(a=>!/^(2-Look|F2L)/.test(a[0]));
+/* F2L – 41 intuitive cases from cube.academy (front slot, right/left variants) */
+const F2={'Easy insert':`U R U' R'|U' L' U L|R U R'|L' U' L`,'Easy insert (alt)':`R' F R F'|L F' L' F`,'Disconnected pair':`U' R U R' U2 R U' R'|U L' U' L U2 L' U L|U' R U2 R' U2 R U' R'|U L' U2 L U2 L' U L|U' R U R' U R U R'|U L' U' L U' L' U' L|U R U2 R' U R U' R'|U' L' U2 L U' L' U L|U2 R U R' U R U' R'|U2 L' U' L U' L' U L`,'Corner in slot':`U' R' F R F' R U R'|U L F' L' F L' U' L|R U' R' U R U' R'|L' U L U' L' U L|R U R' U' R U R'|L' U' L U L' U' L`,'Edge in slot':`U R U' R' U R U' R' U R U' R'|U' R' F R F' R U' R'|U' R U' R' U2 R U' R'|U R U R' U2 R U R'|U2 R U R' F R' F' R|U2 F' U' F U R U' R'`,'Connected pair':`R U' R' U R U' R' U2 R U' R'|L' U L U' L' U L U2 L' U L|U' R U' R' U R U R'|U L' U L U' L' U' L|R U R' U2 R U' R' U R U' R'|L' U' L U2 L' U L U' L' U L|R U2 R' U' R U R'|L' U2 L U L' U' L|U' L' U L U L' U L U' L' U L|U R U' R' U' R U' R' U R U' R'`,'Pieces in slot':`R U' R' U' R U R' U2 R U' R'|R U' R' U R U2 R' U R U' R'|R U' R' U' R U' R' d R' U' R|R U R' U' R U' R' U2 y' R' U' R|R U' R' d R' U2 R U R' U2 R`};
+Object.entries(F2).forEach(([g,s])=>s.split('|').forEach((x,i)=>A.push(['F2L',g+' '+(i+1),x,'F2L – '+g.toLowerCase()+' (intuitive)'])));
+/* OLL & PLL from cube.academy (grouped by shape family) */
+const OL={'Solved cross':`R U R' U R U2 R'|R U2 R' U' R U' R'|R U R' U R U' R' U R U2 R'|R U2 R2 U' R2 U' R2 U2 R|R U R D R' U' R D' R2|R2 D' R U' R' D R U R|R2 D R' U2 R D' R' U2 R'`,'T shape':`F R U R' U' F'|R U R' U' R' F R F'`,'Block':`r U2 R' U' R U' r'|r' U2 R U R' U r`,'Edges only':`r U R' U' M U R U' R'|R U R' U' M' U R U' r'`,'Lightning':`r U R' U R U2 r'|R' F' r U' r' F2 R|r' R2 U R' U R U2 R' U M'|r R2 U' R U' R' U2 R U' M|f R' F' R U R U' R' S'|f' r U r' U' r' F r S`,'P shape':`F U R U' R' F'|R' U' F' U F R|R' U' F U R U' R' F' R|S R U R' U' R' F R f'`,'C shape':`R' U' R' F R F' U R|f R f' U' r' U' R U M'`,'Fish':`F R' F' R U R U' R'|R U2 R2 F R F' R U2 R'|R U R' U' R' F R2 U R' U' F'|R U R' U R' F R F' R U2 R'`,'W shape':`R U R' U R U' R' U' R' F R F'|L' U' L U' L' U L U r U' r' F`,'Hook':`F R U R' U' R U R' U' F'|F R' F' R U2 R U' R' U R U2 R'|r U R' U R U' R' U R U2 r'|r' U' R U' R' U R U' R' U2 r|r U' r2 U r2 U r2 U' r|r' U r2 U' r2 U' r2 U r'`,'Line':`F U R U' R' U R U' R' F'|R' F' U' F U' R U R' U R|r U r' U R U' R' U R U' R' r U' r'|R' F R U R U' R2 F' R2 U' R' U R U R'`,'L shape':`r U r' R U R' U' r U' r'|R' F' R L' U' L U R' F R|F U R U' R2 F' R U R U' R'|R' F R U R' F' R F U' F'`,'Awkward':`r2 D' r U r' D r2 U' r' U' r|F U R U2 R' U' R U2 R' U' F'|R U R' U R U2 R' F R U R' U' F'|R' U' F2 u' R U R' D R2 B`,'Dot':`R U2 R2 F R F' U2 R' F R F'|f U R U' R' S' U R U' R' F'|F R' F' R U S' R U' R' S|S' R U R' S U' R' F R F'|r U R' U R U2 r' r' U' R U' R' U2 r|R' F2 R2 U2 R' F' R U2 R2 F2 R|S R' U' R U R U R U' R' S'|R' F2 R2 U2 R' F R U2 R2 F2 R`};
+Object.entries(OL).forEach(([g,s])=>{const l=s.split('|');l.forEach((x,i)=>A.push(['OLL',g+(l.length>1?' '+(i+1):''),x,'Orient the last layer – '+g.toLowerCase()+' family']))});
+`Ua:R U R' U R' U' R2 U' R' U R' U R|Ub:R' U R' U' R' U' R' U R U R2|H:M2 U' M2 U2 M2 U' M2|Z:M' U' M2 U' M2 U' M' U2 M2|Aa:x R' U R' D2 R U' R' D2 R2 x'|Ab:x R2 D2 R U R' D2 R U' R x'|E:x' R U' R' D R U R' D' R U R' D R U' R' D' x|T:R U R' U' R' F R2 U' R' U' R U R' F'|F:R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R|Ra:R U' R' U' R U R D R' U' R D' R' U2 R'|Rb:R' U2 R U2 R' F R U R' U' R' F' R2|Ja (L):x R2 F R F' R U2 r' U r U2 x'|Jb:R U R' F' R U R' U' R' F R2 U' R'|Y:F R U' R' U' R U R' F' R U R' U' R' F R F'|Na:R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'|Nb:R' U R U' R' F' U' F R U R' U' R U' f R f'|V:R' U R' U' R D' R' D R' U D' R2 U' R2 D R2|Ga:R2 U R' U R' U' R U' R2 D U' R' U R D'|Gb:D R' U' R U D' R2 U R' U R U' R U' R2|Gc:D R2 U' R U' R U R' U R2 D' U R U' R'|Gd:R U R' U' D R2 U' R U' R' U R' U R2 D'`.split('|').forEach(x=>{const [n,s]=x.split(':');A.push(['PLL',n+' perm',s,'Permute the last layer'])});
+const QZ=[
+['What does R\' mean?',['Right face clockwise','Right face counter-clockwise','Right face twice','Rotate the whole cube'],1],
+['What does U2 mean?',['Up clockwise','Up counter-clockwise','A half turn of the top face','Two layers'],2],
+['How many corner pieces are there?',['4','6','8','12'],2],
+['How many colours does an edge piece show?',['1','2','3','4'],1],
+['Which is the first beginner step?',['Yellow cross','White cross','Middle layer','Corners'],1],
+['R U R\' U\' is commonly called…',['Sune','Sexy move','T perm','Hammer'],1],
+['Which pieces never move relative to each other?',['Edges','Corners','Centres','All pieces'],2],
+['F R U R\' U\' F\' makes the…',['White cross','Yellow cross','Middle layer','Corner twist'],1]];
+const BD=[['🌱','First Step',()=>P.done.length>0],['🧭','Notation Pro',()=>P.done.includes(2)],['🎓','Method Complete',()=>P.done.length==LS.length],['⚡','First Solve',()=>P.solves>0],['🧠','Quiz Ace (7+)',()=>P.quiz>=7],['📚','5 Algorithms',()=>P.learned.length>=5]];
+/* ---------- app ---------- */
+let view='home',li=0,armed=0,t0=0,tick,mvs=0,sc=[],tmv='0.0',tt;
+const say=t=>{const e=$('#toast');e.textContent=t;e.classList.add('s');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('s'),3200)};
+const lab=new Cube($('#stage'),56),hero=new Cube($('#hc'),44);
+const pct=()=>Math.round(P.done.length/LS.length*100);
+const lvl=()=>P.done.length<LS.length?'Beginner':P.learned.length<8?'Intermediate':'Advanced';
+const nt=()=>{$('#nt').textContent=(lab.task?'Goal: perform '+lab.task+'  |  ':'')+'Last: '+(lab.hist[lab.hist.length-1]||'–')+'  |  '+lab.hist.slice(-14).join(' ')};
+const upd=()=>{$('#mv').textContent=mvs;$('#tm').textContent=t0&&armed?((Date.now()-t0)/1000).toFixed(1):tmv;$('#bs').textContent=P.best?P.best.toFixed(1)+'s':'–';$('#sv').textContent=P.solves};
+lab.onmove=()=>{nt();if(armed){mvs++;if(!t0){t0=Date.now();tick=setInterval(upd,100)}}
+ if(lab.solved()){
+  if(armed&&t0){clearInterval(tick);const s=(Date.now()-t0)/1000,pb=!P.best||s<P.best;if(pb)P.best=s;P.solves++;P.moves+=mvs;tmv=s.toFixed(1);armed=0;save();say(`Solved in ${mvs} moves, ${tmv}s ${pb?'🏅 New personal best!':'✔'}`)}
+  else if(lab.task){if(!P.learned.includes(lab.task))P.learned.push(lab.task);lab.task=null;save();say('🎉 Algorithm mastered!')}
+  else if(lab.hist.length>2)say('Cube solved! 🎉')}
+ upd()};
+function go(v){location.hash=v;show(v)}
+function show(v){const e=$('#'+v);if(!AC[v]&&(!e||!e.classList.contains('v')))v='home';view=v;const sv=AC[v]?'algs':v;
+ $$('.v').forEach(s=>s.classList.toggle('on',s.id==sv));$$('#nv button').forEach(b=>b.classList.toggle('on',b.dataset.go==v));
+ const sl=$('#'+sv+' .slot');if(sl)sl.append($('#lab'));
+ if(v!='practice'){armed=0;clearInterval(tick)}
+ document.body.classList.remove('open');if(AC[v]&&v!='algs')rAlgs();
+ ({home:rHome,learn:rLearn,progress:rProg,algs:rAlgs,quiz:()=>{if(!$('#qz').innerHTML)rQuiz()},practice:upd,settings:rSet})[v]&&({home:rHome,learn:rLearn,progress:rProg,algs:rAlgs,quiz:()=>{if(!$('#qz').innerHTML)rQuiz()},practice:upd,settings:rSet})[v]();
+ scrollTo(0,0)}
+addEventListener('hashchange',()=>show(location.hash.slice(1)||'home'));
+$('#nv').innerHTML=[['home','🏠 Home'],['learn','📘 Learn'],['sim','🧊 Simulator'],['algs','📚 Basic algs'],['f2l','🧩 F2L'],['oll','🔶 OLL'],['pll','🔷 PLL'],['practice','⏱ Practice'],['quiz','❓ Quiz'],['progress','🏆 Progress'],['settings','⚙ Settings'],['faq','💡 FAQ'],['about','ℹ About']].map(([k,t])=>`<button data-go="${k}">${t}</button>`).join('');
+$('#pad').innerHTML=["","'","2"].map(s=>[...'RLUDFB'].map(f=>`<button data-m="${f+s}">${f+s}</button>`).join('')).join('')+["x","x'","y","y'","z","z'"].map(m=>`<button data-m="${m}">${m}</button>`).join('');
+function rHome(){$('#hb').style.width=pct()+'%';$('#ht').textContent=`${pct()}% complete · Level: ${lvl()} · ${P.learned.length} algorithms learned`;$('#dd').textContent=new Date().toDateString();$('#tp').textContent=TIPS[Math.random()*TIPS.length|0]}
+function rLearn(){$('#ll').innerHTML=LS.map((l,i)=>`<button data-li="${i}" style="${i==li?'border-color:var(--a)':''}">${P.done.includes(i)?'✓ ':''}${i+1}</button>`).join('');
+ const l=LS[li];$('#lc').innerHTML=`<small>${l[0]}</small><h2>${l[1]}</h2>${l[2]}${(l[3]||[]).map(([n,a])=>`<div class="alg"><b>${n}</b><code>${a}</code><button data-play="${a}">▶ Play</button></div>`).join('')}${l[4]?`<p class="tip">💡 ${l[4]}</p>`:''}${l[5]?`<p class="bad">⚠ Common mistake: ${l[5]}</p>`:''}`}
+const aH=a=>`<div class="card" data-alg="${a[2]}"><small>${a[0]}</small><h3>${a[1]}</h3><p>${a[3]}</p><div class="mini"></div><div class="st">${a[2].split(' ').map(m=>`<span>${m}</span>`).join('')}</div><div class="row"><button data-d="1">▶ Demo</button><button data-pr="${a[2]}">🎯 Practice</button><button data-cp="${a[2]}">📋 Copy</button></div>${P.learned.includes(a[2])?'<b>✓ learned</b>':''}</div>`;
+function rAlgs(){const f=$('#aq').value.toLowerCase();$('#at').textContent=f?'Search results':TT[view]||'Algorithms';$('#al').innerHTML=A.filter(a=>(f||(AC[view]||AC.algs).includes(a[0]))&&a.join(' ').toLowerCase().includes(f)).map(aH).join('')||'<p>No algorithms match.</p>';mountMinis();
+ $('#lm').innerHTML=f?LS.map((l,i)=>(l[1]+l[2]).toLowerCase().includes(f)?`<button data-li="${i}" data-go2="1">📘 ${l[1]}</button> `:'').join(''):''}
+function setup(a,watch){go('sim');lab.reset();lab.play(invAlg(a),{rec:false,ms:0});lab.task=watch?null:a;
+ if(watch)lab.play(a);lab.q.then(nt);say(watch?'Watch the algorithm: '+a:'Perform: '+a)}
+/* mini 3×3 demo cubes inside algorithm cards (created lazily when scrolled into view) */
+const AC={algs:['Beginner','Finger tricks'],f2l:['F2L'],oll:['OLL'],pll:['PLL']},TT={algs:'Basic algorithms & finger tricks',f2l:'F2L – 41 intuitive cases',oll:'OLL – 57 cases',pll:'PLL – 21 cases'};
+const minis=new WeakMap();
+const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{const c=e.target;if(e.isIntersecting)mkMini(c);else if(minis.has(c)&&!minis.get(c).busy){c.querySelector('.mini').innerHTML='';minis.delete(c)}}),{rootMargin:'200px'}):null;
+function mkMini(card){if(minis.has(card))return;const m=new Cube(card.querySelector('.mini'),22);m.rx=-40;m.ry=-30;m.view();minis.set(card,m);caseOf(card)}
+function caseOf(card){const m=minis.get(card);m.busy=1;m.reset();m.play(invAlg(card.dataset.alg),{rec:false,ms:0}).then(()=>m.busy=0)} // show the case to solve
+function mountMinis(){$$('#al .card').forEach(c=>io?io.observe(c):mkMini(c))}
+async function demo(card){const m=minis.get(card);if(!m||m.busy)return;m.busy=1;const mv=card.dataset.alg.split(' '),sp=[...card.querySelectorAll('.st span')];
+ m.reset();await m.play(invAlg(card.dataset.alg),{rec:false,ms:0});
+ for(let i=0;i<mv.length;i++){sp.forEach((s,j)=>s.className=j==i?'on':j<i?'dn':'');await m.turn(mv[i],{rec:false})}
+ sp.forEach(s=>s.className='dn');m.busy=0}
+function spUI(){$$('[data-sp]').forEach(b=>b.classList.toggle('on',+b.dataset.sp==P.ms))}
+function newScr(s){lab.reset();sc=s;armed=1;mvs=0;t0=0;tmv='0.0';clearInterval(tick);lab.play(sc.join(' '),{rec:false,ms:50});upd();say('Scramble: '+sc.join(' '))}
+function rProg(){const c=(n,t)=>`<div class="card"><div class="big">${n}</div>${t}</div>`;
+ $('#pg').innerHTML=`<div class="card"><div class="bar"><i style="width:${pct()}%"></i></div><b>${pct()}% complete</b> · Level: ${lvl()}</div><div class="grid">${c(P.done.length+'/'+LS.length,'lessons completed')}${c(P.learned.length,'algorithms learned')}${c(P.solves,'timed solves')}${c(P.moves,'practice moves')}${c(P.best?P.best.toFixed(1)+'s':'–','personal best')}${c(P.quiz+'/'+QZ.length,'best quiz score')}</div><h3 style="margin-top:14px">Badges</h3><div class="grid">${BD.map(b=>`<div class="card ${b[2]()?'':'lock'}"><span class="big">${b[0]}</span><br><b>${b[1]}</b></div>`).join('')}</div>`}
+let qi=0,qs=0,qa=0;
+function rQuiz(){const el=$('#qz');if(qi>=QZ.length){P.quiz=Math.max(P.quiz,qs);save();el.innerHTML=`<h3>Results</h3><div class="big">${qs}/${QZ.length} (${Math.round(qs/QZ.length*100)}%)</div><p>${qs>=7?'Excellent – you’re ready to solve!':qs>=5?'Good start – review the lessons and retry.':'Revisit Chapters 1–2, then try again.'}</p><button class="pri" data-a="qr">Retry quiz</button>`;return}
+ const [q,o]=QZ[qi];el.innerHTML=`<small>Question ${qi+1} of ${QZ.length} · Score ${qs}</small><h3>${q}</h3>${o.map((t,i)=>`<button class="opt" data-o="${i}">${t}</button>`).join('')}<div id="fb"></div>`}
+function rSet(){$('#sTh').checked=P.dark;$('#sSn').checked=!P.mute;$('#sSp').value=P.ms}
+function theme(){document.documentElement.dataset.theme=P.dark?'dark':'light';$('#sn').textContent=P.mute?'🔇':'🔊';save()}
+let tui=0;const TU=['Welcome! Lessons teach the method step by step; the cube beside them is fully interactive.','Drag the cube to rotate it. Tap the move pad (or press R L U D F B) to turn layers.','Use Algorithms to watch or practise a sequence, and Practice for timed solves. Progress saves automatically.'];
+document.addEventListener('click',e=>{const t=e.target.closest('[data-go],[data-a],[data-play],[data-cp],[data-pr],[data-w],[data-o],[data-li],[data-m],[data-d],[data-sp]');if(!t)return;const d=t.dataset;
+ if(d.go)go(d.go);
+ if(d.m){armed=armed;lab.turn(d.m)}
+ if(d.play){lab.play(d.play)}
+ if(d.cp){(navigator.clipboard?navigator.clipboard.writeText(d.cp):Promise.reject()).then(()=>say('Copied!'),()=>say(d.cp))}
+ if(d.pr)setup(d.pr,0);if(d.w)setup(d.w,1);if(d.d)demo(t.closest('.card'));if(d.sp){P.ms=+d.sp;save();spUI()}
+ if(d.li!=null){li=+d.li;if(d.go2)go('learn');else rLearn()}
+ if(d.o!=null&&!qa){qa=1;const c=QZ[qi][2];if(+d.o==c)qs++;$$('.opt').forEach((b,i)=>b.classList.add(i==c?'ok':i==+d.o?'no':'x'));$('#fb').innerHTML=`<p>${+d.o==c?'✅ Correct!':'❌ The right answer is highlighted.'}</p><button class="pri" data-a="qn">${qi==QZ.length-1?'See results':'Next question'}</button>`}
+ switch(d.a){
+  case'reset':lab.reset();armed=0;nt();break;
+  case'scr':armed=0;lab.task=null;lab.play(lab.gen(20).join(' '),{ms:70});break;
+  case'undo':lab.undo();lab.q.then(nt);break;
+  case'prev':li=Math.max(0,li-1);rLearn();break;
+  case'next':li=Math.min(LS.length-1,li+1);rLearn();break;
+  case'done':if(!P.done.includes(li))P.done.push(li);save();if(li<LS.length-1)li++;else say('🎓 Beginner course complete!');rLearn();break;
+  case'newscr':newScr(lab.gen(20));break;
+  case'retry':if(sc.length)newScr(sc);else newScr(lab.gen(20));break;
+  case'daily':{const n=new Date();go('practice');newScr(lab.gen(20,rng(n.getFullYear()*10000+(n.getMonth()+1)*100+n.getDate())));break}
+  case'qn':qi++;qa=0;rQuiz();break;
+  case'qr':qi=0;qs=0;qa=0;rQuiz();break;
+  case'tip':$('#tp').textContent=TIPS[Math.random()*TIPS.length|0];break;
+  case'tu':tui=0;$('#tut').textContent=TU[0];$('#tu').showModal();break;
+  case'tn':if(++tui>=TU.length)$('#tu').close();else $('#tut').textContent=TU[tui];break;
+  case'rp':if(confirm('Erase all saved progress?')){P={done:[],learned:[],best:null,solves:0,moves:0,quiz:0,dark:P.dark,mute:P.mute,ms:P.ms};save();say('Progress reset');rSet()}break}});
+$('#mb').onclick=()=>document.body.classList.toggle('open');
+$('#th').onclick=()=>{P.dark=!P.dark;theme();rSet()};$('#sn').onclick=()=>{P.mute=!P.mute;theme();rSet()};
+$('#sTh').onchange=e=>{P.dark=e.target.checked;theme()};$('#sSn').onchange=e=>{P.mute=!e.target.checked;theme()};$('#sSp').oninput=e=>{P.ms=+e.target.value;save();spUI()};
+$('#q').oninput=e=>{$('#aq').value=e.target.value;if(view!='algs')go('algs');else rAlgs()};$('#aq').oninput=rAlgs;
+addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.ctrlKey||e.metaKey)return;const k=e.key.toUpperCase();if(k.length==1&&'RLUDFB'.includes(k)&&$('#lab').offsetParent)lab.turn(k+(e.shiftKey?"'":''))});
+/* hero cube: slow spin with occasional turns */
+let ht=0;(function lp(){if(view=='home'){hero.ry+=.35;hero.view();if(++ht%110==0)hero.turn(['R','U','F','L',"U'","R'",'B','D'][(ht/110)%8|0],{rec:false})}requestAnimationFrame(lp)})();
+spUI();theme();nt();show(location.hash.slice(1)||'home');
+</script></body></html>
